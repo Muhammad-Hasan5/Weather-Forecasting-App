@@ -21,25 +21,28 @@ option = st.selectbox("Select the data to view",
 st.subheader(f"{option} for {days} days in {place}")
 
 if place:
-    # get the temp/sky data
-    filtered_data = get_data(place, days)
+    try:
+        # get the temp/sky data
+        filtered_data = get_data(place, days)
 
-    if option == "Temperature":
-        # plot the temperature
-        temperatures = [dict["main"]["temp"] for dict in filtered_data]
-        dates = [dict["dt_txt"] for dict in filtered_data]
-        figure = px.line(x=dates, y=temperatures,
-                     labels={"x" : "Date",
-                            "y" : "Temperature"})
-        st.plotly_chart(figure)
+        if option == "Temperature":
+            # plot the temperature
+            temperatures = [dict["main"]["temp"] for dict in filtered_data]
+            temperatures = [temp/10 for temp in temperatures]
+            dates = [dict["dt_txt"] for dict in filtered_data]
+            figure = px.line(x=dates, y=temperatures,
+                         labels={"x" : "Date",
+                                "y" : "Temperature (C)"})
+            st.plotly_chart(figure)
 
-    if option == "Sky":
-        # inserting sky images
-        sky_conditions = [dict["weather"][0]["main"] for dict in filtered_data]
-        sky_and_img = {"Clear" : "weather_images/clear.png", "Clouds" : "weather_images/cloud.png",
-                       "Snow" : "weather_images/snow.png", "Rain" : "weather_images/rain.png"}
-        img_paths = [sky_and_img[condition] for condition in sky_conditions]
-        st.image(img_paths, width=115)
-
+        if option == "Sky":
+            # inserting sky images
+            sky_conditions = [dict["weather"][0]["main"] for dict in filtered_data]
+            sky_and_img = {"Clear" : "weather_images/clear.png", "Clouds" : "weather_images/cloud.png",
+                           "Snow" : "weather_images/snow.png", "Rain" : "weather_images/rain.png"}
+            img_paths = [sky_and_img[condition] for condition in sky_conditions]
+            st.image(img_paths, width=115)
+    except Exception:
+        st.error("The city you entered does not exists.")
 
 
